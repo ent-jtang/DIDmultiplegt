@@ -513,7 +513,9 @@ did_multiplegt_bootstrap = function(df, controls, brep, trends_nonparam, trends_
 
   if (parallel) {
     numCores <- detectCores()
-    matrix(unlist(mclapply(1:brep, callback, mc.cores = numCores)), nrow = brep, ncol = K, byrow = TRUE)
+    cl <- makeCluster(numCores)
+    matrix(unlist(parLapply(cl, 1:brep, callback)), nrow = brep, ncol = K, byrow = TRUE)
+    stopCluster(cl)
   } else {
     matrix(unlist(lapply(1:brep, callback)), nrow = brep, ncol = K, byrow = TRUE)
   }
