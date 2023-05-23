@@ -83,7 +83,7 @@ did_multiplegt_transform <- function(df, controls, trends_nonparam) {
     summarize_all(mean)
 
   # canonicalize time to start from 0 and increase consecutively
-  tdf <- df %>% group_by(.data$T) %>% summarize(Tgroup = group_indices()) %>% select(.data$T, .data$Tgroup)
+  tdf <- df %>% group_by(.data$T) %>% summarize(Tgroup = cur_group_id()) %>% select(.data$T, .data$Tgroup)
   df <- left_join(df, tdf, by="T") %>% mutate(T = .data$Tgroup) %>% select(-.data$Tgroup)
 
   # Mark all columns to NA if one is NA
@@ -97,7 +97,7 @@ did_multiplegt_transform <- function(df, controls, trends_nonparam) {
   # canonicalize treatment to start from 0 and increase consecutively
   cat_treatment = if ("Drecat" %in% colnames(df)) { "Drecat" } else { "D" }
   var_cat_treatment = sym(cat_treatment)
-  tdf <- df %>% group_by(!!var_cat_treatment) %>% summarize(Dgroup = group_indices()) %>% select(!!var_cat_treatment, .data$Dgroup)
+  tdf <- df %>% group_by(!!var_cat_treatment) %>% summarize(Dgroup = cur_group_id()) %>% select(!!var_cat_treatment, .data$Dgroup)
   df <- left_join(df, tdf, by=cat_treatment)
 
   df <- df %>% mutate(DgroupLag = lag(.data$Dgroup))
@@ -122,7 +122,7 @@ did_multiplegt_transform <- function(df, controls, trends_nonparam) {
 
   # process trends_nonparam
   if (trends_nonparam) {
-    tdf <- df %>% group_by(.data$Vtrends, .data$Tfactor) %>% summarize(VtrendsX = group_indices()) %>% select(.data$Vtrends, .data$Tfactor, .data$VtrendsX)
+    tdf <- df %>% group_by(.data$Vtrends, .data$Tfactor) %>% summarize(VtrendsX = cur_group_id()) %>% select(.data$Vtrends, .data$Tfactor, .data$VtrendsX)
     tdf$VtrendsX <- factor(tdf$VtrendsX)
 
     df <- left_join(df, tdf, by=c("Vtrends", "Tfactor")) %>% mutate(Vtrends = .data$VtrendsX) %>% select(-.data$VtrendsX)
